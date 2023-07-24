@@ -1,0 +1,43 @@
+PARA CONECTAR AO MONGO VIA TERMINAL:
+docker exec -it {container_name} /bin/bash
+
+JÁ CONECTADO
+  - EXECUTE PARA SABER A VERSÃO DO MONGO
+      mongo --version
+
+EXECUTE PARA ACESSAR O SHELL DO MONGO COMO ROOT
+     mongo -u root -p {password}
+
+ EXECUTE PARA ACESSAR O SHELL DO MONGO COMO ROOT
+     mongo -u root -p {password}
+
+  - EXECUTE PARA LIMPAR O TERMINAL
+    cls
+
+  - EXECUTE PARA MOSTRAR TODOS OS DB's
+    show dbs
+
+  - EXECUTE PARA IR PARA UM DB, CRIADO OU NÃO
+    use my_db
+
+  - EXECUTE PARA CRIAR UMA COLEÇÃO
+    db.createCollection('estados')
+
+  - EXECUTE PARA MOSTAR AS COLEÇÕES DO DB
+    show collections
+
+  - EXECUTE PARA DROPAR UMA COLLECTION
+    db.{collection_name}.drop()
+
+
+- CASO QUEIRA SABER MAIS OPÇÕES DIGITE ``db.`` E APERTE ``TAB``
+
+- ACRESCENTAR MAIS UM ELEMENTO A COLLECTION:
+    {
+      "nome": "Acre",
+      "sigla": "AC",
+      "regiao": "Norte"
+    }
+- NO TERMINAL PODERÍAMOS REALIZAR ESSA AÇÃO USANDO O MÉTODO "insert" OU "save"
+db.estados.insert({nome: "Acre", sigla: "AC", regiao: "Norte"})
+db.estados.save({nome: "Acre", sigla: "AC", regiao: "Norte"})
