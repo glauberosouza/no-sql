@@ -8,9 +8,6 @@ JÁ CONECTADO
 EXECUTE PARA ACESSAR O SHELL DO MONGO COMO ROOT
      mongo -u root -p {password}
 
- EXECUTE PARA ACESSAR O SHELL DO MONGO COMO ROOT
-     mongo -u root -p {password}
-
   - EXECUTE PARA LIMPAR O TERMINAL
     cls
 
@@ -41,3 +38,67 @@ EXECUTE PARA ACESSAR O SHELL DO MONGO COMO ROOT
 - NO TERMINAL PODERÍAMOS REALIZAR ESSA AÇÃO USANDO O MÉTODO "insert" OU "save"
 db.estados.insert({nome: "Acre", sigla: "AC", regiao: "Norte"})
 db.estados.save({nome: "Acre", sigla: "AC", regiao: "Norte"})
+
+ESSA LINHA REALIZA UMA AGREGAÇÃO NA COLEÇÃO "ESTADOS", PROJETANDO APENAS OS CAMPOS "NOME" DO ESTADO E "NOME" DAS CIDADES,
+ENQUANTO EXCLUI O CAMPO "_ID".
+db.estados.aggregate([{ $project: { nome:1, "cidades.nome":1, _id:0 }  }]).pretty()
+
+ESSA LINHA REALIZA UMA AGREGAÇÃO NA COLEÇÃO "ESTADOS", PROJETANDO APENAS A "SIGLA" DO ESTADO, SOMANDO A POPULAÇÃO DE
+TODAS AS CIDADES USANDO $SUM E EXCLUINDO O CAMPO "_ID".
+db.estados.aggregate([{ $project: { sigla:1, populacao: { $sum:"$cidades.populacao" }, _id:0 }  }]).pretty()
+
+ESSA LINHA REALIZA UMA AGREGAÇÃO NA COLEÇÃO "ESTADOS". PRIMEIRO, PROJETA A POPULAÇÃO TOTAL SOMANDO A POPULAÇÃO DE
+TODAS AS CIDADES DE CADA ESTADO, JUNTAMENTE COM A SIGLA DO ESTADO E SEM O CAMPO "_ID".
+EM SEGUIDA, REALIZA UM GROUP PARA CALCULAR A POPULAÇÃO TOTAL DE TODOS OS ESTADOS.
+ENTÃO EXIBE APENAS O CAMPO "POPULACAO_TOTAL" SEM O CAMPO "_ID".
+
+db.estados.aggregate([
+    {
+        $project: {
+            populacao: { $sum: "$cidades.populacao"},
+            sigla:1,
+            _id:0
+        }
+    },
+    {
+        $group: { _id: null, populacao_total: {$sum: "$populacao"}}
+     },
+     {
+        $project: {
+            _id:0, populacao_total:1
+        }
+     }
+]).pretty()
+
+
+ESSA OPERAÇÃO ATUALIZA UM DOCUMENTO NA COLEÇÃO "ESTADOS", BUSCANDO PELO DOCUMENTO COM "SIGLA" IGUAL A "SP"
+E "NOME" DA CIDADE IGUAL A "SÃO JOSÉ DOS CAMPOS". EM SEGUIDA, ALTERA O "_ID" DO PRIMEIRO ELEMENTO DO ARRAY "CIDADES"
+PELO VALOR FORNECIDO.
+db.estados.update(
+    {
+        $and:[{sigla:"SP"}, { "cidades.nome":"São José dos Campos"}]
+    },
+    {
+        $set: { "cidades.0._id": ObjectId('61ce52ccf4603b234116f950') }
+    }
+)
+
+
+ESSA OPERAÇÃO ADICIONA UM NOVO DOCUMENTO À ARRAY "CIDADES" EM DOCUMENTOS COM A "SIGLA" IGUAL A "SP" NA COLEÇÃO
+"ESTADOS", UTILIZANDO O OPERADOR $PUSH PARA ADICIONAR O OBJETO DA CIDADE COM "_ID" GERADO AUTOMATICAMENTE,
+"NOME", "AREA" E "POPULAÇÃO".
+db.estados.update(
+    {
+        sigla:"SP"
+    },
+    {
+        $push: {
+            cidades: {
+            "_id" : ObjectId(),
+            "nome" : "Jacareí",
+            "area" : 1.0,
+            "populacao" : 300.000
+            }
+        }
+    }
+)
