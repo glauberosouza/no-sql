@@ -102,3 +102,42 @@ db.estados.update(
         }
     }
 )
+
+ESSA OPERAÇÃO BUSCA DOCUMENTOS CONTENDO A CIDADE "SÃO JOSÉ DOS CAMPOS" NO CAMPO "CIDADES.NOME",
+DESCONSTROI O ARRAY "CIDADES" E PROJETA O CAMPO "_ID" COMO UMA STRING.
+db.estados.aggregate(
+    [
+        {
+            $match:{"cidades.nome":"São José dos Campos"}
+        },
+        {
+            $unwind:"$cidades"
+        },
+        {
+            $match:{"cidades.nome":"São José dos Campos"}
+        },
+        {
+            $project:{_id: {
+                    $toString: "$cidades._id"
+                }
+            }
+        }
+    ]
+).pretty()
+
+
+A PRIMEIRA OPERAÇÃO DELETA TODOS OS DOCUMENTOS DO ESTADO DO ACRE (SIGLA "AC").
+A SEGUNDA OPERAÇÃO REMOVE DOCUMENTOS DE ESTADOS COM POPULAÇÃO INFERIOR A 4 MILHÕES.
+
+db.estados.remove(
+    {
+        sigla: "AC"
+    }
+)
+db.estados.remove(
+    {
+        populacao:{
+            $lt:4000000
+        }
+    }
+)
